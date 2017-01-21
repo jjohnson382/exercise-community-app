@@ -15,24 +15,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HomeActivity extends AppCompatActivity {
-    private DatabaseReference mDatabase;
-    private String androidId;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        androidId = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
 
-
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-
-        Map<String, Object> userProfile = new HashMap<String, Object>();
-        userProfile.put("name","James");
-        userProfile.put("mileTime","00:08:00");
-        mDatabase.child("users").child(androidId).setValue(userProfile);
-
-        TextView tvAndroidId = (TextView) findViewById(R.id.tvAndroidId);
-        tvAndroidId.setText(androidId);
     }
 }
