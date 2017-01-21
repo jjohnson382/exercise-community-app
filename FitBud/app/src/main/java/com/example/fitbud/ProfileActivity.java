@@ -1,16 +1,21 @@
 package com.example.fitbud;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.Manifest;
 import android.location.Location;
 import android.location.LocationManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TabItem;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -22,8 +27,11 @@ import android.widget.ToggleButton;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -54,6 +62,65 @@ public class ProfileActivity extends AppCompatActivity  implements GoogleApiClie
         final EditText ex2 = (EditText) findViewById(R.id.exercise2);
         final EditText ex3 = (EditText) findViewById(R.id.exercise3);
         final ToggleButton active = (ToggleButton) findViewById(R.id.activetoggle);
+        final HashMap<String, EditText> elMap = new HashMap<>();
+
+        final Button gtNearby = (Button) findViewById(R.id.gtNearby);
+        gtNearby.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), NearbyActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        elMap.put("name", name);
+        elMap.put("eciName", eciName);
+        elMap.put("eciPhone", eciPhone);
+        elMap.put("avgMile", avgMile);
+        elMap.put("avgDis", avgDis);
+        elMap.put("ex1", ex1);
+        elMap.put("ex2", ex2);
+        elMap.put("ex3", ex3);
+
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users/" + androidId);
+
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (String key : elMap.keySet()) {
+                    if (dataSnapshot.child(key).getValue() != null) {
+                        String val = dataSnapshot.child(key).getValue() + "";
+                        System.out.println(dataSnapshot.child(key).getValue());
+                        if (!elMap.get(key).equals("")) {
+                            elMap.get(key).setText(val);
+                        }
+                    }
+                }
+
+//                if (userProfile == null) {
+//                    return;
+//                }
+//
+//                for (String key : userProfile.keySet()) {
+//                    if (userProfile.get(key) == null) {
+//                        userProfile.put(key, "");
+//                    }
+//                }
+//                name.setText(userProfile.get("name") + "");
+//                eciName.setText(userProfile.get("eciName") + "");
+//                eciPhone.setText(userProfile.get("eciPhone") + "");
+//                avgMile.setText(userProfile.get("avgMile") + "");
+//                avgDis.setText(userProfile.get("avgDis") + "");
+//                ex1.setText(userProfile.get("ex1") + "");
+//                ex2.setText(userProfile.get("ex2") + "");
+//                ex3.setText(userProfile.get("ex3") + "");
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                System.out.println("The read failed: " + databaseError.getCode());
+            }
+        });
 
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -139,7 +206,11 @@ public class ProfileActivity extends AppCompatActivity  implements GoogleApiClie
             userProfile.put("ex1", ex1.getText().toString());
             userProfile.put("ex2", ex2.getText().toString());
             userProfile.put("ex3", ex3.getText().toString());
-            mDatabase.child("users").child(androidId).setValue(userProfile);
+            for (String key : userProfile.keySet()) {
+                if (!userProfile.get(key).equals("")) {
+                    mDatabase.child("users").child(androidId).child(key).setValue(userProfile.get(key));
+                }
+            }
         }
     }
 
