@@ -16,12 +16,13 @@ import java.util.Map;
 
 public class HomeActivity extends AppCompatActivity {
     private DatabaseReference mDatabase;
+    private String androidId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        String android_id = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+        androidId = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
 
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -29,9 +30,9 @@ public class HomeActivity extends AppCompatActivity {
         Map<String, Object> userProfile = new HashMap<String, Object>();
         userProfile.put("name","James");
         userProfile.put("mileTime","00:08:00");
-        mDatabase.child("users").child(android_id).setValue(userProfile);
+        mDatabase.child("users").child(androidId).setValue(userProfile);
 
-        TextView tvPhoneNo = (TextView) findViewById(R.id.tvPhoneNo);
-        tvPhoneNo.setText(android_id);
+        TextView tvAndroidId = (TextView) findViewById(R.id.tvAndroidId);
+        tvAndroidId.setText(androidId);
     }
 }
