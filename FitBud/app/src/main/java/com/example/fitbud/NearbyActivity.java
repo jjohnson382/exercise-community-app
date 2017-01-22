@@ -83,15 +83,45 @@ public class NearbyActivity extends AppCompatActivity {
                             } else {
                                 System.out.println(user.child("lat").getValue() + ";" + Double.parseDouble(user.child("lat").getValue().toString()));
                                 System.out.println(me.child("lat").getValue() + ";" + Double.parseDouble(me.child("lat").getValue().toString()));
-                                System.out.println("Ted is gay");
+
                             }
+
+                        double compatibility=0.0;
+
+                        if(!(user.child("avgMile").getValue() == null || user.child("avgDis").getValue()==null || me.child("avgMile").getValue() == null || me.child("avgDis").getValue() == null)){
+                            compatibility=compatibility+(Math.min(Double.parseDouble(user.child("avgDis").getValue().toString()),Double.parseDouble(me.child("avgDis").getValue().toString()))/Math.max(Double.parseDouble(user.child("avgDis").getValue().toString()),Double.parseDouble(me.child("avgDis").getValue().toString())))*50;
+                            compatibility=compatibility+Math.max(25-d,0);
+
+
+                            String time = (String) user.child("avgMile").getValue();
+                            String[] units = time.split(":"); //will break the string up into an array
+                            int minutes = Integer.parseInt(units[0]); //first element
+                            int seconds = Integer.parseInt(units[1]); //second element
+                            double userduration = 60.0 * minutes + seconds; //add up our values
+
+                            String time1 = (String) me.child("avgMile").getValue();
+                            String[] units1 = time.split(":"); //will break the string up into an array
+                            int minutes1 = Integer.parseInt(units[0]); //first element
+                            int seconds1 = Integer.parseInt(units[1]); //second element
+                            double meduration = 60.0 * minutes + seconds; //add up our values
+                            compatibility=compatibility+Math.min(meduration,userduration)/Math.max(meduration,userduration)*25;
+                            compatibility=Math.round(compatibility*10)/10;
+                        }
+
+
+
+
+
+
+
 
 
                         s+=user.child("name").getValue() + "\n"
                                 + "Average Dist. \t" + user.child("avgDis").getValue() + "mi.\n"
                                 + "Average Mile Time \t" + user.child("avgMile").getValue() + "min. \n"
                                 + "Phone Number \t" +  user.child("eciName").getValue() +"\n"
-                                +  "Distance \t" + d + "km\n\n";
+                                +  "Distance \t" + d + "km\n"
+                                +  "Compatibility \t" + compatibility + "/100\n\n";
                     }
 
 
